@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Inject } from '@nestjs/common';
+import { ClientKafka, MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(@Inject('FIBO_SERVICE') private client: ClientKafka) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @MessagePattern('user')
+  getUser() {
+    console.log('peticion a user');
+    return 'Marcelino Majerhua Ayala';
   }
 }
