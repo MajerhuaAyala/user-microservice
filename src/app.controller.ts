@@ -3,7 +3,7 @@ import { ClientKafka, MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class AppController {
-  constructor(@Inject('FIBO_SERVICE') private client: ClientKafka) {}
+  constructor(@Inject('ACTION_SERVICE') private client: ClientKafka) {}
 
   @MessagePattern('user')
   getUser() {
