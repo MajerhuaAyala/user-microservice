@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
 import { ValidationPipe } from '@nestjs/common';
-import { RpcCustomExceptionFilter } from './common/exceptions/rpc-custom-exeption.filter';
+import { HttpCustomExeptionFilter } from './common/exceptions/http-custom-exeption.filter';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -29,7 +29,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new RpcCustomExceptionFilter());
+  app.useGlobalFilters(new HttpCustomExeptionFilter());
 
   await app.listen();
 }
