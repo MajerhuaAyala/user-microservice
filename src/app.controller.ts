@@ -6,10 +6,11 @@ import {
   RpcException,
 } from '@nestjs/microservices';
 import { UserRegisterDto } from './dto/user-register.dto';
+import { SERVICE_NAME } from './config';
 
 @Controller()
 export class AppController {
-  constructor(@Inject('ACTION_SERVICE') private client: ClientKafka) {}
+  constructor(@Inject(SERVICE_NAME) private client: ClientKafka) {}
 
   @MessagePattern('user')
   getUser() {
