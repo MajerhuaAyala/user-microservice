@@ -32,15 +32,18 @@ export class AppController {
 
   @MessagePattern('user.register.user')
   async registerUser(@Payload() userRegisterDto: UserRegisterDto) {
-    try {
-      console.log('Registro de usuario: ', userRegisterDto);
-      return this.userRepository.save(userRegisterDto);
-    } catch (error) {
-      console.error(error);
+    const oldUser = await this.userRepository.findOneBy({
+      email: userRegisterDto.email,
+    });
+
+    if (oldUser) {
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
-        message: error.message,
+        message: 'User is registered',
       });
     }
+
+    console.log('Registro de usuario: ', userRegisterDto);
+    return this.userRepository.save(userRegisterDto);
   }
 }
