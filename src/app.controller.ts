@@ -7,10 +7,17 @@ import {
 } from '@nestjs/microservices';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { SERVICE_NAME } from './config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from './user.entity';
+import { Repository } from 'typeorm';
 
 @Controller()
 export class AppController {
-  constructor(@Inject(SERVICE_NAME) private client: ClientKafka) {}
+  constructor(
+    @Inject(SERVICE_NAME) private client: ClientKafka,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
+  ) {}
 
   @MessagePattern('user')
   getUser() {
@@ -26,9 +33,10 @@ export class AppController {
   @MessagePattern('user.register.user')
   async registerUser(@Payload() userRegisterDto: UserRegisterDto) {
     try {
-      console.log(`Registrando usuario: `, userRegisterDto);
-      return userRegisterDto;
+      console.log('Registro de usuario: ', userRegisterDto);
+      return this.userRepository.save(userRegisterDto);
     } catch (error) {
+      console.error(error);
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
         message: error.message,

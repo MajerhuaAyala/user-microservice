@@ -1,8 +1,12 @@
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
+  IsDate,
   IsEmail,
+  IsEnum,
   IsPhoneNumber,
   IsString,
+  IsUUID,
   MaxLength,
   MinLength,
   NotEquals,
@@ -10,6 +14,8 @@ import {
 import { IsNullable, IsPassword, IsUndefinable } from './validator.decorators';
 import {
   PhoneNumberSerializer,
+  ToArray,
+  ToBoolean,
   ToLowerCase,
   ToUpperCase,
 } from './transform.decorators';
@@ -22,6 +28,9 @@ interface IFieldOptions {
   groups?: string[];
   required?: boolean;
 }
+
+type IEnumFieldOptions = IFieldOptions;
+type IBooleanFieldOptions = IFieldOptions;
 
 interface IStringFieldOptions extends IFieldOptions {
   minLength?: number;
@@ -120,4 +129,103 @@ export function PhoneFieldOptional(
     IsUndefinable(),
     PhoneField({ required: false, ...options }),
   );
+}
+
+export function DateField(options: IFieldOptions = {}): PropertyDecorator {
+  const decorators = [Type(() => Date), IsDate()];
+
+  if (options.nullable) {
+    decorators.push(IsNullable());
+  } else {
+    decorators.push(NotEquals(null));
+  }
+
+  return applyDecorators(...decorators);
+}
+
+export function UUIDField(options: IFieldOptions = {}): PropertyDecorator {
+  const decorators = [Type(() => String), IsUUID('4', { each: options.each })];
+
+  if (options.nullable) {
+    decorators.push(IsNullable());
+  } else {
+    decorators.push(NotEquals(null));
+  }
+
+  if (options.each) {
+    decorators.push(ToArray());
+  }
+
+  return applyDecorators(...decorators);
+}
+
+export function StringFieldOptional(
+  options: IStringFieldOptions = {},
+): PropertyDecorator {
+  return applyDecorators(
+    IsUndefinable(),
+    StringField({ required: false, ...options }),
+  );
+}
+
+export function EnumField<TEnum extends object>(
+  getEnum: () => TEnum,
+  options: IEnumFieldOptions = {},
+): PropertyDecorator {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/ban-types
+  const enumValue = getEnum();
+  const decorators = [IsEnum(enumValue, { each: options.each })];
+
+  if (options.nullable) {
+    decorators.push(IsNullable());
+  } else {
+    decorators.push(NotEquals(null));
+  }
+
+  if (options.each) {
+    decorators.push(ToArray());
+  }
+  return applyDecorators(...decorators);
+}
+
+export function EnumFieldOptional<TEnum extends object>(
+  getEnum: () => TEnum,
+  options: IEnumFieldOptions = {},
+): PropertyDecorator {
+  return applyDecorators(
+    IsUndefinable(),
+    EnumField(getEnum, { required: false, ...options }),
+  );
+}
+
+export function EmailFieldOptional(
+  options: IStringFieldOptions = {},
+): PropertyDecorator {
+  return applyDecorators(
+    IsUndefinable(),
+    EmailField({ required: false, ...options }),
+  );
+}
+
+export function BooleanFieldOptional(
+  options: IBooleanFieldOptions = {},
+): PropertyDecorator {
+  return applyDecorators(
+    IsUndefinable(),
+    BooleanField({ required: false, ...options }),
+  );
+}
+
+export function BooleanField(
+  options: IBooleanFieldOptions = {},
+): PropertyDecorator {
+  const decorators = [ToBoolean(), IsBoolean()];
+
+  if (options.nullable) {
+    decorators.push(IsNullable());
+  } else {
+    decorators.push(NotEquals(null));
+  }
+
+  return applyDecorators(...decorators);
 }
