@@ -4,6 +4,7 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { v4 as uuidv4 } from 'uuid';
 import { ValidationPipe } from '@nestjs/common';
 import { ExceptionFilter } from './common/exceptions/ExceptionFilter';
+import { HttpCustomExceptionFilter } from './common/exceptions/HttpException';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -29,6 +30,7 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalFilters(new HttpCustomExceptionFilter());
   app.useGlobalFilters(new ExceptionFilter());
 
   await app.listen();

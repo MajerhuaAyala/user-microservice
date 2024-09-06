@@ -10,6 +10,7 @@ import { SERVICE_NAME } from './config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
+import { FindOneUserDto } from './dto/find-one-user.dto';
 
 @Controller()
 export class AppController {
@@ -20,14 +21,19 @@ export class AppController {
   ) {}
 
   @MessagePattern('user')
-  getUser() {
-    console.log('peticion a user');
-    return {
-      id: 1,
-      username: 'Marcelino',
-      email: 'marcelino.majerhua@gmail.com',
-      role: 'ADMIN',
-    };
+  async getUser(@Payload() findOneUserDto: FindOneUserDto) {
+    try {
+      const response = await this.userRepository.findOne({
+        where: { id: findOneUserDto.id },
+      });
+      return JSON.stringify(response);
+    } catch (error) {
+      console.log('Error en getUser: ', error);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error.message,
+      });
+    }
   }
 
   @MessagePattern('user.register.user')

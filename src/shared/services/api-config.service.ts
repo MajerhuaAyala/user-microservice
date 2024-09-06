@@ -67,7 +67,6 @@ export class ApiConfigService {
       __dirname + '/../../**/*.entity{.ts,.js}',
       __dirname + '/../../**/*.view-entity{.ts,.js}',
     ];
-    console.log({ entities });
     const migrations = [__dirname + '/../../database/migrations/*{.ts,.js}'];
 
     return {
